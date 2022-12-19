@@ -17,6 +17,7 @@ def initialiseStartArray(start_array):  # function to create random start state
     return start_array  # return created array
 
 
+# Hemming Ansatz - h1
 def checkmisplacedTiles(array1, array2):  # check how many tiles are misplaced in start array in relation to goal array (h1)
     counter = 0  # counter of misplaced tiles starts with zero
     for i in range(3):  # as long the array goes
@@ -25,18 +26,7 @@ def checkmisplacedTiles(array1, array2):  # check how many tiles are misplaced i
                 counter += 1  # increment the counter
     return counter  # return the counter
 
-
-def getCoordinatesOfNumber(array, number):  # function to get the coordinates of a certain number
-    coordinates = [0, 0]  # empty array for coordinates
-    for i in range(3):  # search as long as array goes
-        for j in range(3):
-            if array[i][j] == number:  # if array element is the number searched for
-                coordinates[0] = i  # save coordinates
-                coordinates[1] = j
-                break
-    return coordinates  # return coordinates
-
-
+# Manhatten Ansatz - h2
 def checkDistancefromGoalState(array1, array2):  # function to calculate the distances form goal State (h2)
     counter = 0  # counter to check each number
     distance = 0  # distance calculated starts with zero
@@ -48,6 +38,21 @@ def checkDistancefromGoalState(array1, array2):  # function to calculate the dis
         counter += 1  # increment the counter to calculate distance for next number
     return distance  # return calculated distance
 
+def getCoordinatesOfNumber(array, number):  # function to get the coordinates of a certain number
+    coordinates = [0, 0]  # empty array for coordinates
+    for i in range(3):  # search as long as array goes
+        for j in range(3):
+            if array[i][j] == number:  # if array element is the number searched for
+                coordinates[0] = i  # save coordinates
+                coordinates[1] = j
+                break
+    return coordinates  # return coordinates
+
+def swapElements(array, index1, index2):  # function to swap to array items
+    temp = array[index1]
+    array[index1] = array[index2]
+    array[index2] = temp
+    return array
 
 def printArrays(array):  # function to print arrays
     for i in range(3):
@@ -57,12 +62,13 @@ def printArrays(array):  # function to print arrays
             else:
                 print(array[i][j], end=" ")
 
+def algorithmHemmning (array1, array2, f_score, g_score, h_score):
+    # TODO implement algorithm
+    return "";
 
-def swapElements(array, index1, index2):  # function to swap to array items
-    temp = array[index1]
-    array[index1] = array[index2]
-    array[index2] = temp
-    return array
+def algorithmManhatten (array1, array2, f_score, g_score, h_score):
+    # TODO implement algorithm
+    return "";
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
