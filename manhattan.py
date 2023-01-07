@@ -1,23 +1,20 @@
 # Manhatten Ansatz - h2
 # function to calculate the distances form goal State (h2)
 def checkDistanceFromGoalState(array1, array2):
-    # counter to check each number
-    counter = 0
     # distance calculated starts with zero
     distance = 0
     # for each number in array (0-8)
-    while counter != 9:
+    for i in range(0, 9):
         # get coordinates from number in start array
-        coordinatesStart = getCoordinatesOfNumber(array1, counter)
+        coordinatesStart = getCoordinatesOfNumber(array1, i)
         # get coordinates from number in goal array
-        coordinatesGoal = getCoordinatesOfNumber(array2, counter)
-        distance += (abs(coordinatesStart[0] - coordinatesGoal[0])) + (
-            # calculate the distances between both coordinates
-            abs(coordinatesStart[1] - coordinatesGoal[1]))
+        coordinatesGoal = getCoordinatesOfNumber(array2, i)
+        # calculate the distances between both coordinates
+        distance += (abs(coordinatesStart[0] - coordinatesGoal[0])) + (abs(coordinatesStart[1] - coordinatesGoal[1]))
         # increment the counter to calculate distance for next number
-        counter += 1
     # return calculated distance
     return distance
+
 
 # function to get the coordinates of a certain number
 def getCoordinatesOfNumber(array, number):

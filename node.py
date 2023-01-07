@@ -1,59 +1,76 @@
+from hamming import *
+from manhattan import *
+
+
 class Node:
     # class constructor
-    def __init__(self, state, depth, f_score):
+    def __init__(self, state, h_score, move):
         self.state = state
-        self.depth = depth
-        self.f_score = f_score
+        self.h_score = h_score
+        self.previousMove = move
 
     # generate child nodes
-    def generateChild(self):
+    def createChild(self, heu, goal_array):
         # get coordinates of Zero
         positions = getCoordinatesOfNumber(self.state, 0)
 
         # create a list of possible coordinates by moving Zero up, down, left right
-        val_list = [[positions[0], positions[1] - 1], [positions[0], positions[1] + 1],
-                    [positions[0] - 1, positions[1]], [positions[0] + 1, positions[1]]]
+        moveList = [[positions[0] - 1, positions[1]], [positions[0] + 1, positions[1]],
+                    [positions[0], positions[1] - 1], [positions[0], positions[1] + 1]]
 
         # create an array for all the children
         children = []
         # for every single move the zero can do
-        for i in val_list:
+        cnt = 0
+        for i in moveList:
             # check if move is possible and if possible do the move
-            child = self.shuffle(self.state, positions[0], positions[1], i[0], i[1])
-            # if move was possible
-            if child is not None:
+            if self.checkMove(i, cnt):
+                child = self.swapZero(self.state, positions[0], positions[1], i[0], i[1])
                 # create child with new state
-                child_node = Node(child, self.depth + 1, 0)
+                if heu == "ham":
+                    child_node = Node(child, checkMisplacedTiles(child, goal_array), cnt)
+                else:
+                    child_node = Node(child, checkDistanceFromGoalState(child, goal_array), cnt)
                 # append child to list
                 children.append(child_node)
+            cnt += 1
         # return children array
         return children
 
-    # check if move is possbile
-    def shuffle(self, data, x1, y1, x2, y2):
-        # if possible
-        if x2 >= 0 and x2 < len(self.state) and y2 >= 0 and y2 < len(self.state):
-            # change position of zero
-            temp_data = []
-            temp_data = self.copy(data)
-            temp = temp_data[x2][y2]
-            temp_data[x2][y2] = temp_data[x1][y1]
-            temp_data[x1][y1] = temp
-            # return switched puzzle
-            return temp_data
+    def checkMove(self, moveList, move):
+        if 0 <= moveList[0] < len(self.state) and 0 <= moveList[1] < len(self.state):
+            # move 0 - up, 1 - down, 2 - left, 3 - right
+            if move == 0 and self.previousMove == 1:
+                return False
+            elif move == 1 and self.previousMove == 0:
+                return False
+            elif move == 2 and self.previousMove == 3:
+                return False
+            elif move == 3 and self.previousMove == 2:
+                return False
+            else:
+                return True
         else:
-            # if move was not possbile return none
-            return None
+            return False
+
+    def swapZero(self, data, x1, y1, x2, y2):
+        temp_data = self.copy(data)
+        temp = temp_data[x2][y2]
+        temp_data[x2][y2] = temp_data[x1][y1]
+        temp_data[x1][y1] = temp
+        # return switched puzzle
+        return temp_data
 
     # function to copy one matrix from another
     def copy(self, root):
-        temp = []
+        array = []
         for i in root:
-            t = []
+            row = []
             for j in i:
-                t.append(j)
-            temp.append(t)
-        return temp
+                row.append(j)
+            array.append(row)
+        return array
+
 
 # function to get the coordinates of a certain number
 def getCoordinatesOfNumber(array, number):
@@ -67,6 +84,6 @@ def getCoordinatesOfNumber(array, number):
                 # save coordinates
                 coordinates[0] = i
                 coordinates[1] = j
-                break
+                return coordinates
     # return coordinates
-    return coordinates
+    return False
