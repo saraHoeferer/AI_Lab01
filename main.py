@@ -200,7 +200,7 @@ def do100(goal_array, heuristics):
         # the Mean deviation
         print("Mean deviation in ", heu, ": %.3f" %(sumMeanDeviation), "seconds - This the average time needed to solve one puzzle using the", heu,  "Approach.")
         # and the Standard deviation
-        print("Standard deviation in", heu, ": %.3f" %math.sqrt(sumVariance/100) ,"seconds - This describes the dispersion from mean deviation." )
+        print("Standard deviation in", heu, ": %.3f" %math.sqrt(sumVariance) ,"seconds - This describes the dispersion from mean deviation." )
         print("")
 
 # the main is only used to run the do100 function
