@@ -1,14 +1,16 @@
-# Hemming Ansatz - h1
-# check how many tiles are misplaced in start array in relation to goal array (h1)
-def checkMisplacedTiles(array1, array2):
+# this file is used to calculate the h_score using the Hamming approach
+
+# the function checks how many tiles are misplaced in the current state in relation to goal array - solution
+def checkMisplacedTiles(currentState, goalState):
+    # the inputs are the state (puzzle) of the node currently looked at an the goal array (solution)
     # counter of misplaced tiles starts with zero
-    counter = 0
+    misplacedTilesCounter = 0
     # as long the array goes
     for i in range(3):
         for j in range(3):
             # if the position of the elements is not the same as the goal array
-            if array1[i][j] != array2[i][j]:
+            if currentState[i][j] != goalState[i][j]:
                 # increment the counter
-                counter += 1
+                misplacedTilesCounter += 1
     # return the counter
-    return counter
+    return misplacedTilesCounter

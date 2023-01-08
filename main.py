@@ -1,4 +1,3 @@
-# This is a sample Python script.
 import random
 import time
 from node import *
@@ -6,123 +5,189 @@ from hamming import *
 from manhattan import *
 
 
-# function to create random start state
+# function to create random a start state
 def initialiseStartArray():
+    # no inputs needed
     # list of available numbers to fill array with
-    list = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-    inversion = 0
-    array = []
-    inv = []
-    # create 3 rows
+    numbersToBeChosen = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    # empty array that is used to create start array - Two Dimensional
+    TD_startArray = []
+    # empty array used to check the inversion - One Dimensional
+    OD_startArray = []
+    # first we create 3 rows
     for i in range(3):
+        # and an empty row array
         row = []
-        # fill rows with 3 entries each
+        # then we fill the rows with 3 entries each
         for j in range(3):
             # choose random number from list
-            counter = random.choice(list)
+            randomNumber = random.choice(numbersToBeChosen)
             # put number chosen into row
-            row.append(counter)
-            if counter != 0:
-                inv.append(counter)
-            # remove chosen number from array so it does not get chosen twice
-            list.remove(counter)
-        # check inversion score
-        # append the start array with completed row
-        array.append(row)
-    inversion = checkInversion(inv)
-    return array, inversion
+            row.append(randomNumber)
+            # check that the number chosen is not zero, since zero is not included in the inversion calculation
+            if randomNumber != 0:
+                # if any other number than zero we add it to the inversion array
+                OD_startArray.append(randomNumber)
+            # remove chosen number from list so it does not get chosen twice
+            numbersToBeChosen.remove(randomNumber)
+        # after a whole row was created it gets appended to start array
+        TD_startArray.append(row)
+    # after whole array was created we check the inversion with the one dimensional copy of the array
+    inversion_score = checkInversion(OD_startArray)
+    # then we return the array and the inversion score
+    return TD_startArray, inversion_score
 
 
-def checkInversion(inv):
-    inversion = 0
-    # check inversion score from neighbors
+# function to check the inversion score of a given random start state the inversion score is needed since a puzzle
+# with an uneven inversion score is not solvable - therefore this function actually checks
+# if a puzzle is solvable or not
+def checkInversion(OD_startArray):
+    # the input is the start state reformatted into a one dimensional array instead of an two dimensional array
+    # we set the inversion_score to zero
+    inversion_score = 0
+    # we want to check if the neighbors of number is smaller than the one inspected
+    # therefore we check the whole array
     for i in range(0, 8):
+        # and check each neighbor
         for j in range(i + 1, 8):
-            # if a number is larger than the following ones inversion score increases
-            if inv[j] < inv[i]:
-                inversion += 1
-    return inversion
+            # if the number currently inspected (i) is larger than their neighbors
+            if OD_startArray[j] < OD_startArray[i]:
+                # the score is increased by one
+                inversion_score += 1
+    # after checking the whole array we return th inversion score
+    return inversion_score
 
 
 # function to print arrays
 def printArrays(array):
+    # the input is the array which should be printed
+    # for each row
     for i in range(3):
+        # and for each collum
         for j in range(3):
+            # we check if the array is at the end of the row
             if j == 2:
+                # if so we print the respective value with a "\n" included next to it
                 print(array[i][j])
             else:
+                # if the respective value is not at the end we print it with a " " included next to it
                 print(array[i][j], end=" ")
+    # there is no return values since this function only prints arrays
 
-def checkAppearance(list, node):
-    for nodes in list:
-        if node.state == nodes.state:
-            return True
+
+# function to get the coordinates of a certain number
+def getCoordinatesOfNumber(array, number):
+    # the inputs are the array in which a certain number should be found and the number to be found
+    # empty array for coordinates
+    coordinates = [0, 0]
+    # search as long as array goes
+    for i in range(3):
+        for j in range(3):
+            # if array element is the number searched for
+            if array[i][j] == number:
+                # save coordinates and return them
+                coordinates[0] = i
+                coordinates[1] = j
+                return coordinates
+    # if no such coordinates were found we return False
     return False
 
-def searchAlgorithm(start_array, goal_array, h_score, algorithm):
-    # create start node
-    current = Node(start_array, h_score, 5)
+
+# function to check if a node created has the same state (start_array) as one created before
+def checkAppearance(list, node):
+    # the inputs are the list with certain states that should be checked and the node that was newly created
+    # for each item in the list
+    for item in list:
+        # we check if the item has a state that is equal to the state from the node being checked
+        if node.state == item.state:
+            # if a already existent item and the newly created node share the same state - True is returned
+            return True
+    # if no such item could be found which shares the same state with the newly created node - False is returned
+    return False
+
+
+# function to solve the 8 puzzle by expanding the tree with children and checking if one of them is the solution
+# this function is the core of the whole programme - the algorithm
+def searchAlgorithm(start_array, goal_array, heuristic):
+    # the inputs are the random start_array, the goal_Array which holds the solution, and the heuristic chosen to
+    # calculate with first we create a node to start with
+
+    # first we check which heuristic was chosen to determine which h_score to calculate
+    # the h_score is the factor on which we choose the next node to work with
+    # at the beginning only one node is created therefore we immediately choose this one
+    if heuristic == "Hamming":
+        # if hamming was chosen we calculate the h_score as how many tiles are misplaced in the current state
+        current = Node(start_array, checkMisplacedTiles(start_array, goal_array), 5)
+    else:
+        # if manhattan was chosen we calculate the h_score as how many distances each tile needs to make till it
+        # reaches its final position
+        current = Node(start_array, checkDistanceFromGoalState(start_array, goal_array), 5)
+    # the we create a list with all nodes that have been created but no checked yet
+    # (checked means that we look if the node we created is already the solution)
     openList = [current, ]
+    # and a list with all nodes that have already been checked
     closedList = []
-    # create openList and append start node
-    # access current element - first element of open List
-    cnt = 0
-    # as long as current matrix and goal matrix are not the same
+    # as long as the current h_score of the node we look at is not zero (no solution found yet)
     while current.h_score != 0:
-        # for every child created
-        for i in current.createChild(algorithm, goal_array):
-            # check if matrix is already in open List
+        # we create as many children as possible (max. 4)
+        # a child is determined by the movement of the zero position
+        for i in current.createChild(heuristic, goal_array):
+            # for every child created by the current/parent node
+            # we check if state (array) is already in open List
             alreadyOpen = checkAppearance(openList, i)
+            # or if its already in the closed list
             alreadyClosed = checkAppearance(closedList, i)
-            # if not
+            # if it is not found in either one of them
             if not alreadyOpen and not alreadyClosed:
-                # append open list with new matrix
+                # append open list with node
                 openList.append(i)
-        # move current list into closed list
+        # then we move current node into closed list - since it is now checked
         closedList.append(current)
-        # delete current state from open list
+        # and delete current node from open list
         del openList[0]
-        # sort open list according to lowest f_score
-        openList.sort(key=lambda x:x.h_score, reverse=False)
+        # then we sort open list according to lowest h_score
+        openList.sort(key=lambda x: x.h_score, reverse=False)
+        # and the current node becomes the first node in the open list - so the one with the lowest h_score
         current = openList[0]
-        cnt += 1
-    # return solution
+    # after a node was found which h_score equals zero we return the amount of created nodes
     return len(openList) + len(closedList)
 
 
-def do100(goal_array):
-    time_ham = 0
-    time_man = 0
-    sum_ham = 0
-    sum_man = 0
-    for i in range(100):
-        start_array, inversion = initialiseStartArray()
-        misplacedTiles = checkMisplacedTiles(start_array, goal_array)
-        distance = checkDistanceFromGoalState(start_array, goal_array)
+# this function is used to solve 100 random puzzles using the hamming and manhattan method and measuring the time
+# needed to solve them
+def do100(goal_array, heuristics):
+    # the inputs are the goal_array - the solution and an array of the heuristics being used
+    # for each heuristic that is used
+    for heu in heuristics:
+        # we create a sum of nodes created and set it to zero
+        sumOfNodesCreated = 0
+        # we set a start time
+        start_time = time.time()
+        # the we run our searchAlgorithm 100 times
+        for i in range(100):
+            # we set a start array and an inversion_score
+            start_array, inversion_score = initialiseStartArray()
 
-        while inversion % 2 != 0:
-            start_array, inversion = initialiseStartArray()
+            # as long as a puzzle randomly created is not solvable
+            while inversion_score % 2 != 0:
+                # we create a new one and check the inversion_score again
+                start_array, inversion_score = initialiseStartArray()
+            # after we found a solvable puzzle we start the algorithm by handing over the start_array, the goal_array
+            # and the heuristic being used
+            sumOfNodesCreated += searchAlgorithm(start_array, goal_array, heu)
+        # After solving 100 puzzles we stop the time
+        end_time = time.time()
+        # And calculate the difference to get the duration
+        duration = end_time - start_time
 
-        start_time_ham = time.time()
-        sum_ham += searchAlgorithm(start_array, goal_array, misplacedTiles, "ham")
-        end_time_ham = time.time()
-        time_ham += end_time_ham-start_time_ham
-        print("Ham:", i + 1)
-
-        start_time_man = time.time()
-        sum_man += searchAlgorithm(start_array, goal_array, distance, "man")
-        end_time_man = time.time()
-        time_man += end_time_man - start_time_man
-        print("Man: ", i + 1)
-
-    print("time Hamming: ", time_ham)
-    print("time Manhattan: ", time_man)
-    print ("Average nodes Ham: ", sum_ham/100)
-    print("Average nodes Man: ", sum_man/100)
+        # then we print the time used and the average nodes created
+        print("Time needed to solve 100 8-Puzzles using ", heu, ": %.3f" % duration, "seconds. Average nodes created: ",
+              sumOfNodesCreated / 100)
 
 
-# Press the green button in the gutter to run the script.
+# the main is only used to run the do100 function
 if __name__ == '__main__':
-    # goal array - solution
+    # we create a goal array - solution
     goal_array = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
-    do100(goal_array)
+    # and start the function by handing over the goal array and the heuristics we want to use
+    do100(goal_array, ["Hamming", "Manhattan"])

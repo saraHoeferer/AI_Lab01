@@ -1,33 +1,21 @@
-# Manhatten Ansatz - h2
-# function to calculate the distances form goal State (h2)
-def checkDistanceFromGoalState(array1, array2):
+from main import getCoordinatesOfNumber
+
+
+# this file is used to calculate the h_score using the Manhattan approach
+
+# function that calculates the distances each number needs to take till it reaches its goal position
+def checkDistanceFromGoalState(currentState, goalState):
+    # the inputs are the state (puzzle) of the Node currently looked at and the goal array (the solution)
     # distance calculated starts with zero
     distance = 0
     # for each number in array (0-8)
     for i in range(0, 9):
-        # get coordinates from number in start array
-        coordinatesStart = getCoordinatesOfNumber(array1, i)
+        # get coordinates from number in State of the current node
+        coordinates_current = getCoordinatesOfNumber(currentState, i)
         # get coordinates from number in goal array
-        coordinatesGoal = getCoordinatesOfNumber(array2, i)
+        coordinates_goal = getCoordinatesOfNumber(goalState, i)
         # calculate the distances between both coordinates
-        distance += (abs(coordinatesStart[0] - coordinatesGoal[0])) + (abs(coordinatesStart[1] - coordinatesGoal[1]))
-        # increment the counter to calculate distance for next number
+        distance += (abs(coordinates_current[0] - coordinates_goal[0])) + (
+            abs(coordinates_current[1] - coordinates_goal[1]))
     # return calculated distance
     return distance
-
-
-# function to get the coordinates of a certain number
-def getCoordinatesOfNumber(array, number):
-    # empty array for coordinates
-    coordinates = [0, 0]
-    # search as long as array goes
-    for i in range(3):
-        for j in range(3):
-            # if array element is the number searched for
-            if array[i][j] == number:
-                # save coordinates
-                coordinates[0] = i
-                coordinates[1] = j
-                break
-    # return coordinates
-    return coordinates
