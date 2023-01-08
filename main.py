@@ -198,7 +198,7 @@ def do100(goal_array, heuristics):
         # then we print the time used and the average nodes created
         print("Time needed to solve 100 8-Puzzles using ", heu, ": %.3f" % (sumMeanDeviation*100), "seconds - Average nodes created: ", sumOfNodesCreated / 100)
         # the Mean deviation
-        print("Mean deviation in ", heu, ": %.3f" %(sumMeanDeviation), "seconds - This the average time needed to solve one puzzle using the", heu,  "Approach.")
+        print("Mean in ", heu, ": %.3f" %(sumMeanDeviation), "seconds - This the average time needed to solve one puzzle using the", heu,  "Approach.")
         # and the Standard deviation
         print("Standard deviation in", heu, ": %.3f" %math.sqrt(sumVariance) ,"seconds - This describes the dispersion from mean deviation." )
         print("")
