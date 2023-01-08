@@ -1,5 +1,6 @@
 import random
 import time
+import math
 from node import *
 from hamming import *
 from manhattan import *
@@ -161,28 +162,45 @@ def do100(goal_array, heuristics):
     for heu in heuristics:
         # we create a sum of nodes created and set it to zero
         sumOfNodesCreated = 0
-        # we set a start time
-        start_time = time.time()
+        # we create an array to time all the puzzles
+        arrayTimes = []
+        # an create variables for the mean deviation and the variance (used for standard deviation)
+        sumMeanDeviation = 0
+        sumVariance = 0
         # the we run our searchAlgorithm 100 times
         for i in range(100):
             # we set a start array and an inversion_score
             start_array, inversion_score = initialiseStartArray()
-
             # as long as a puzzle randomly created is not solvable
             while inversion_score % 2 != 0:
                 # we create a new one and check the inversion_score again
                 start_array, inversion_score = initialiseStartArray()
+            # we time the solving of one puzzle
+            start_time_one = time.time()
             # after we found a solvable puzzle we start the algorithm by handing over the start_array, the goal_array
             # and the heuristic being used
             sumOfNodesCreated += searchAlgorithm(start_array, goal_array, heu)
-        # After solving 100 puzzles we stop the time
-        end_time = time.time()
-        # And calculate the difference to get the duration
-        duration = end_time - start_time
+            # we stop the time for one puzzle
+            end_time_one = time.time()
+            # and expand the array with the duration needed for solving one puzzle
+            arrayTimes.append(end_time_one-start_time_one)
+        # After solving 100 puzzles we then calculate the sum of Mean Deviation
+        for i in range(len(arrayTimes)):
+            sumMeanDeviation += arrayTimes[i]
+        # and divide it by 100 (the amount of puzzles solved
+        sumMeanDeviation = sumMeanDeviation/100
+        # and then we calculate the sum of variance
+        for i in range(len(arrayTimes)):
+            sumVariance += (arrayTimes[i]-sumMeanDeviation)**2
+        # and divide it by 100
+        sumVariance = sumVariance/100
 
         # then we print the time used and the average nodes created
-        print("Time needed to solve 100 8-Puzzles using ", heu, ": %.3f" % duration, "seconds. Average nodes created: ",
-              sumOfNodesCreated / 100)
+        print("Time needed to solve 100 8-Puzzles using ", heu, ": %.3f" % (sumMeanDeviation*100), "seconds. Average nodes created: ", sumOfNodesCreated / 100)
+        # the Mean deviation
+        print("Mean deviation in ", heu, ": %.3f" %(sumMeanDeviation))
+        # and the Standard deviation
+        print("standard deviation in", heu, ": %.3f" %math.sqrt(sumVariance/100))
 
 
 # the main is only used to run the do100 function
